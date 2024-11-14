@@ -7,7 +7,7 @@ import (
 )
 
 func ServerConfigurationHandler() gin.HandlerFunc {
-	// Get server configuration info
+	// Return server configuration info
 	return func(c *gin.Context) {
 		system, err := services.ServerConfiguration()
 		if err != nil {

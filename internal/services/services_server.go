@@ -1,5 +1,5 @@
-// A service layer
 package services
+// A service layer for server functionality
 
 import (
 	"log"

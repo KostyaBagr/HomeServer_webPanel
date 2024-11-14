@@ -15,9 +15,13 @@ func InitializeRoutes() *gin.Engine {
 	r.Use(gin.Recovery())
 	api := r.Group("api/v1")
 	{
-		systemGroup := api.Group("system") 
+		systemGroup := api.Group("server") 
 		{
 			systemGroup.GET("/system-info", handlers.ServerConfigurationHandler())
+		}
+		componentsGroup := api.Group("components")
+		{
+			componentsGroup.GET("/cpu-info", handlers.GetCpuDetailInfo())
 		}
 	}
 	return r 
