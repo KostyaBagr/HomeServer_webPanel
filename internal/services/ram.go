@@ -23,7 +23,7 @@ func parseLine(raw string) (key string, value string) {
 	text := strings.ReplaceAll(raw[:len(raw)-2], " ", "")
 	keyValue := strings.Split(text, ":")
 	totalVal := int64((toInt(keyValue[1]) + 1048576 - 1) / 1048576)
-	totalValStr := strconv.FormatInt(totalVal, 10) + " Gb"
+	totalValStr := strconv.FormatInt(totalVal, 10) + " GB"
 	return keyValue[0], totalValStr
 }
 

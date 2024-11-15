@@ -1,9 +1,9 @@
 package services
+
 // A service layer for server functionality
 
 import (
 	"log"
-	
 	"github.com/dhamith93/systats"
 )
 
@@ -24,7 +24,6 @@ func ServerConfiguration() (interface{}, error) {
 		log.Printf("Could not get the memory info: %v", err)
 		return nil, err
 	}
-
 	// Get network info
 	networks, err := syStats.GetNetworks()
 	if err != nil {

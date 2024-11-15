@@ -23,7 +23,7 @@ func InitializeRoutes() *gin.Engine {
 		{
 			componentsGroup.GET("/cpu-info", handlers.GetCpuDetailInfo())
 			componentsGroup.GET("/ram-info", handlers.GetRamDetailInfo())
-			componentsGroup.GET("/disk-info", handlers.GetDiskDetailInfo())
+			componentsGroup.GET("/disks-info", handlers.GetDiskDetailInfo())
 		}
 	}
 	return r 

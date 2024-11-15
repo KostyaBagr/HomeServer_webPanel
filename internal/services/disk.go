@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"syscall"
 )
 
 type DiskStatus struct {
-	All  uint64 `json:"All"`
-	Used uint64 `json:"Used"`
-	Free uint64 `json:"Free"`
+	All  string `json:"All"`
+	Used string `json:"Used"`
+	Free string `json:"Free"`
 }
 
 const (
@@ -35,12 +36,18 @@ func DiskUsage() (map[string]DiskStatus, error) {
 				log.Printf("Could not get disk info for %s: %v", path, err)
 				continue
 			}
+			
+			gbAll := strconv.FormatUint(uint64(fs.Blocks * uint64(fs.Bsize)) / GB, 10) + " GB"
+			gbFree := strconv.FormatUint(uint64(fs.Bfree * uint64(fs.Bsize)) / GB, 10) + " GB"
+
+			usedSpace := uint64(fs.Blocks * uint64(fs.Bsize)) / GB - uint64(fs.Bfree * uint64(fs.Bsize)) / GB
+			gbUsed := strconv.FormatUint(usedSpace, 10) + " GB"
 
 			disk := DiskStatus{
-				All:  uint64(fs.Blocks*uint64(fs.Bsize)) / GB,
-				Free: uint64(fs.Bfree*uint64(fs.Bsize)) / GB, 
+				All:  gbAll,
+				Free: gbFree,
+				Used: gbUsed,
 			}
-			disk.Used = disk.All - disk.Free
 			name := strings.Split(path, "/")
 			diskLetter := name[len(name)-1] 
 			diskStats[diskLetter] = disk
