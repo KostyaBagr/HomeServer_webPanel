@@ -60,20 +60,19 @@ func getCpuLoad() (int64, error){
 		total += p.cpu
 
     }
-	fmt.Println(total)
 	return int64(total), nil
 }
 
 
 func getCpuTemp() (map[string]interface{}, error) {
 	// Get and return CPU temp
+	// TODO: check temp file on linux machine
 	thermalDir := "/sys/class/thermal/"
 	temps := make(map[string]interface{})
 
-	fmt.Println("Starting to read temperature data...")
 	err := filepath.Walk(thermalDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			fmt.Printf("Error accessing path %q: %v\n", path, err)
+			log.Fatalf("Error accessing path %q: %v\n", path, err)
 			return err
 		}
 
@@ -81,7 +80,7 @@ func getCpuTemp() (map[string]interface{}, error) {
 			fmt.Printf("Reading temperature from %s\n", path)
 			data, err := ioutil.ReadFile(path)
 			if err != nil {
-				fmt.Printf("Error reading file %q: %v\n", path, err)
+				log.Fatalf("Could not read file %s", path)
 				return err
 			}
 
@@ -89,11 +88,10 @@ func getCpuTemp() (map[string]interface{}, error) {
 			fmt.Printf("Raw temperature data: %s\n", tempStr)
 			temp, err := strconv.Atoi(tempStr)
 			if err != nil {
-				fmt.Printf("Error converting temperature data %q: %v\n", tempStr, err)
+				log.Fatalf("Error converting temperature data %q: %v\n", tempStr, err)
 				return err
 			}
 			tempCelsius := float64(temp) / 1000.0
-			fmt.Printf("Temperature from %s: %.2f°C\n", path, tempCelsius)
 			temps[path] = tempCelsius
 		}
 
@@ -103,6 +101,6 @@ func getCpuTemp() (map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	
 	return temps, nil
 }

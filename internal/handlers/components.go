@@ -22,3 +22,37 @@ func GetCpuDetailInfo() gin.HandlerFunc {
 		})
 	}
 }
+
+func GetRamDetailInfo() gin.HandlerFunc {
+	// Return Ram info
+	return func(c *gin.Context) {
+		ram, err := services.RamDetailInfo()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Could not retrieve Ram information",
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"result": ram,
+		})
+	}
+}
+
+
+func GetDiskDetailInfo() gin.HandlerFunc {
+	// Return Disk info
+	return func(c *gin.Context) {
+		disk, err := services.DiskDetailInfo()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Could not retrieve disk information",
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"result": disk,
+		})
+	}
+}
+

@@ -22,6 +22,8 @@ func InitializeRoutes() *gin.Engine {
 		componentsGroup := api.Group("components")
 		{
 			componentsGroup.GET("/cpu-info", handlers.GetCpuDetailInfo())
+			componentsGroup.GET("/ram-info", handlers.GetRamDetailInfo())
+			componentsGroup.GET("/disk-info", handlers.GetDiskDetailInfo())
 		}
 	}
 	return r 
