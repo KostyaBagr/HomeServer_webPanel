@@ -17,7 +17,12 @@ func InitializeRoutes() *gin.Engine {
 	{
 		systemGroup := api.Group("server") 
 		{
-			systemGroup.GET("/system-info", handlers.ServerConfigurationHandler())
+			systemGroup.GET("/system-info", 
+					handlers.ServerConfigurationHandler())
+			systemGroup.GET("/manage/reboot", 
+					handlers.RebootServerHandler())
+			systemGroup.GET("/manage/poweroff", 
+					handlers.PowerOffServerHandler())
 		}
 		componentsGroup := api.Group("components")
 		{

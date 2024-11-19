@@ -4,11 +4,15 @@ package services
 
 import (
 	"log"
+	"os/exec"
+
 	"github.com/dhamith93/systats"
 )
 
 
 func ServerConfiguration() (interface{}, error) {
+	// Get Server configuration.
+
 	// Get CPU info from the service layer
 	syStats := systats.New()
 
@@ -37,4 +41,24 @@ func ServerConfiguration() (interface{}, error) {
 		"memory":    memory,
 		"networks":  networks,
 	}, nil
+}
+
+func RebootServer()  (string, error){
+	// Reboot 
+	cmd := exec.Command("sudo", "/sbin/reboot")
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal("Error rebooting computer:", err)
+	}
+	return "Ok", nil
+}
+
+func PowerOffserver() (string, error){
+	// Poweroff 
+	cmd := exec.Command("sudo", "/sbin/shutdown", "-h", "now")
+	err := cmd.Run()
+	if err != nil {
+			log.Fatal("Error shutting down computer:", err)
+	}
+	return "Ok", nil
 }
