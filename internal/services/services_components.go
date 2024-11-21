@@ -42,7 +42,7 @@ func RamDetailInfo() (map[string]interface{}, error){
 
 func DiskDetailInfo() (map[string]interface{}, error){
 	// Get and return detail disk information
-	disk, err := DiskUsage()
+	disk, err := DiskUsageSummary()
 	if err != nil{
 		log.Fatal("Could not get disk info")
 	}

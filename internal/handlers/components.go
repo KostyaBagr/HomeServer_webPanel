@@ -2,7 +2,7 @@
 package handlers
 
 import (
-	"fmt"
+
 	"net/http"
 
 	"github.com/KostyaBagr/HomeServer_webPanel/internal/services"
@@ -45,16 +45,16 @@ func GetRamDetailInfo() gin.HandlerFunc {
 func GetDiskDetailInfo() gin.HandlerFunc {
 	// Return Disk info
 	return func(c *gin.Context) {
-		disk, err := services.DiskUsage()
-		fmt.Println(disk)
+		disk, err := services.DiskDetailInfo()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": "Could not retrieve disk information",
 			})
 			return
 		}
+
 		c.JSON(http.StatusOK, gin.H{
-			"result": disk,
+			"result":  disk,
 		})
 	}
 }

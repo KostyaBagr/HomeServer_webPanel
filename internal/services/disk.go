@@ -4,63 +4,39 @@ import (
 	"fmt"
 	"github.com/shirou/gopsutil/disk"
 )
-type DiskInfo struct {
-	Device      string
-	Mountpoint  string
-	Fstype      string
-	FreeSpace   uint64
-	TotalSpace  uint64
-	UsedSpace   uint64
-	UsedPercent float64
+
+type DiskSummary struct {
+	TotalFreeSpace uint64 `json:"total_free_space"` 
+	TotalUsedSpace uint64 `json:"total_used_space"` 
+	TotalSpace     uint64 `json:"total_space"`      
 }
 
-type DisksInfo struct {
-	Disks []DiskInfo
-}
-
-func (d *DisksInfo) Summary() string {
-	var totalFree, totalUsed, totalSpace uint64
-	for _, disk := range d.Disks {
-		if disk.Fstype == "squashfs" {
-			continue
-		}
-		totalFree += disk.FreeSpace
-		totalUsed += disk.UsedSpace
-		totalSpace += disk.TotalSpace
-	}
-
-	return fmt.Sprintf("Суммарное свободное место: %d GB\nСуммарный объем: %d GB\nСуммарно использовано: %d GB\n",
-		totalFree/1024/1024/1024,
-		totalSpace/1024/1024/1024,
-		totalUsed/1024/1024/1024,
-	)
-}
-
-
-func DiskUsage() (DisksInfo, error) {
+func DiskUsageSummary() (DiskSummary, error) {
 	partitions, err := disk.Partitions(false)
 	if err != nil {
-		return DisksInfo{}, fmt.Errorf("ошибка при получении разделов: %w", err)
+		return DiskSummary{}, fmt.Errorf("Error: %w", err)
 	}
 
-	var disksInfo DisksInfo
+	var totalFree, totalUsed, totalSpace uint64
 	for _, partition := range partitions {
 		usage, err := disk.Usage(partition.Mountpoint)
 		if err != nil {
-			fmt.Printf("Ошибка для %s: %v\n", partition.Mountpoint, err)
+			fmt.Printf("Error for %s: %v\n", partition.Mountpoint, err)
 			continue
 		}
 
-		diskInfo := DiskInfo{
-			Device:      partition.Device,
-			Mountpoint:  partition.Mountpoint,
-			Fstype:      partition.Fstype,
-			FreeSpace:   usage.Free,
-			TotalSpace:  usage.Total,
-			UsedSpace:   usage.Used,
-			UsedPercent: usage.UsedPercent,
+		if usage.Fstype == "squashfs" || usage.Total == 0 {
+			continue
 		}
-		disksInfo.Disks = append(disksInfo.Disks, diskInfo)
+
+		totalFree += usage.Free
+		totalUsed += usage.Used
+		totalSpace += usage.Total
 	}
-	return disksInfo, nil
+
+	return DiskSummary{
+		TotalFreeSpace: totalFree / (1024 * 1024 * 1024),
+		TotalUsedSpace: totalUsed / (1024 * 1024 * 1024),
+		TotalSpace:     totalSpace / (1024 * 1024 * 1024),
+	}, nil
 }
