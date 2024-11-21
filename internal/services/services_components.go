@@ -24,17 +24,3 @@ func CpuDetailInfo() (map[string]interface{}, error) {
 		"load": strconv.FormatInt(load, 10) + " %",
 	}, nil
 }
-
-
-func RamDetailInfo() (map[string]interface{}, error){
-	// Get and return detail ram information
-	ram, err := ReadMemoryStats()
-	if err != nil{
-		log.Fatal("Could not get Ram info")
-	}
-
-	return map[string]interface{}{
-		"ram": ram,
-	}, nil
-}
-

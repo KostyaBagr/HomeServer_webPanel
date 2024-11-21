@@ -28,7 +28,7 @@ func GetCpuDetailInfo() gin.HandlerFunc {
 func GetRamDetailInfo() gin.HandlerFunc {
 	// Return Ram info
 	return func(c *gin.Context) {
-		ram, err := services.RamDetailInfo()
+		ram, err := services.ReadMemoryStats()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": "Could not retrieve Ram information",
