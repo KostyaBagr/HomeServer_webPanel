@@ -2,61 +2,65 @@ package services
 
 import (
 	"fmt"
-	"log"
-	"os"
-	"strconv"
-	"strings"
-	"syscall"
+	"github.com/shirou/gopsutil/disk"
 )
-
-type DiskStatus struct {
-	All  string `json:"All"`
-	Used string `json:"Used"`
-	Free string `json:"Free"`
+type DiskInfo struct {
+	Device      string
+	Mountpoint  string
+	Fstype      string
+	FreeSpace   uint64
+	TotalSpace  uint64
+	UsedSpace   uint64
+	UsedPercent float64
 }
 
-const (
-	B  = 1
-	KB = 1024 * B
-	MB = 1024 * KB
-	GB = 1024 * MB
-)
+type DisksInfo struct {
+	Disks []DiskInfo
+}
 
-func DiskUsage() (map[string]DiskStatus, error) {
-	// Find all disks in system. count free, total ans used space
-	diskStats := make(map[string]DiskStatus)
-
-	for _, drive := range "ABCDEFGHIJKLMNOPQRSTUVWXYZ" {
-		path := "/mnt/" + strings.ToLower(string(drive))
-		_, err := os.Stat(path)
-		if err == nil {
-			fs := syscall.Statfs_t{}
-			err = syscall.Statfs(path, &fs)
-			if err != nil {
-				log.Printf("Could not get disk info for %s: %v", path, err)
-				continue
-			}
-			
-			gbAll := strconv.FormatUint(uint64(fs.Blocks * uint64(fs.Bsize)) / GB, 10) + " GB"
-			gbFree := strconv.FormatUint(uint64(fs.Bfree * uint64(fs.Bsize)) / GB, 10) + " GB"
-
-			usedSpace := uint64(fs.Blocks * uint64(fs.Bsize)) / GB - uint64(fs.Bfree * uint64(fs.Bsize)) / GB
-			gbUsed := strconv.FormatUint(usedSpace, 10) + " GB"
-
-			disk := DiskStatus{
-				All:  gbAll,
-				Free: gbFree,
-				Used: gbUsed,
-			}
-			name := strings.Split(path, "/")
-			diskLetter := name[len(name)-1] 
-			diskStats[diskLetter] = disk
+func (d *DisksInfo) Summary() string {
+	var totalFree, totalUsed, totalSpace uint64
+	for _, disk := range d.Disks {
+		if disk.Fstype == "squashfs" {
+			continue
 		}
+		totalFree += disk.FreeSpace
+		totalUsed += disk.UsedSpace
+		totalSpace += disk.TotalSpace
 	}
 
-	if len(diskStats) == 0 {
-		return nil, fmt.Errorf("no accessible drives found")
+	return fmt.Sprintf("Суммарное свободное место: %d GB\nСуммарный объем: %d GB\nСуммарно использовано: %d GB\n",
+		totalFree/1024/1024/1024,
+		totalSpace/1024/1024/1024,
+		totalUsed/1024/1024/1024,
+	)
+}
+
+
+func DiskUsage() (DisksInfo, error) {
+	partitions, err := disk.Partitions(false)
+	if err != nil {
+		return DisksInfo{}, fmt.Errorf("ошибка при получении разделов: %w", err)
 	}
 
-	return diskStats, nil
+	var disksInfo DisksInfo
+	for _, partition := range partitions {
+		usage, err := disk.Usage(partition.Mountpoint)
+		if err != nil {
+			fmt.Printf("Ошибка для %s: %v\n", partition.Mountpoint, err)
+			continue
+		}
+
+		diskInfo := DiskInfo{
+			Device:      partition.Device,
+			Mountpoint:  partition.Mountpoint,
+			Fstype:      partition.Fstype,
+			FreeSpace:   usage.Free,
+			TotalSpace:  usage.Total,
+			UsedSpace:   usage.Used,
+			UsedPercent: usage.UsedPercent,
+		}
+		disksInfo.Disks = append(disksInfo.Disks, diskInfo)
+	}
+	return disksInfo, nil
 }

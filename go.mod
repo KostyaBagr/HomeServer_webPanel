@@ -47,6 +47,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/radovskyb/watcher v1.0.7 // indirect
+	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/shirou/gopsutil/v4 v4.24.10 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/ssimunic/gosensors v0.0.0-20170414000417-e7ab9a4e799b // indirect

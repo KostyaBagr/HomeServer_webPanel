@@ -1,10 +1,12 @@
 // This file contains handlers for cpu, ram, disk and so on
 package handlers
 
-import(
+import (
+	"fmt"
 	"net/http"
-	"github.com/gin-gonic/gin"
+
 	"github.com/KostyaBagr/HomeServer_webPanel/internal/services"
+	"github.com/gin-gonic/gin"
 )
 
 func GetCpuDetailInfo() gin.HandlerFunc {
@@ -43,7 +45,8 @@ func GetRamDetailInfo() gin.HandlerFunc {
 func GetDiskDetailInfo() gin.HandlerFunc {
 	// Return Disk info
 	return func(c *gin.Context) {
-		disk, err := services.DiskDetailInfo()
+		disk, err := services.DiskUsage()
+		fmt.Println(disk)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": "Could not retrieve disk information",

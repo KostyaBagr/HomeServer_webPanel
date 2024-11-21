@@ -28,10 +28,10 @@ func InitializeRoutes() *gin.Engine {
 			systemGroup.GET("/system-info", 
 			middlewares.CheckAuth,
 					handlers.ServerConfigurationHandler())
-			systemGroup.GET("/manage/reboot", 
+			systemGroup.POST("/manage/reboot", 
 					middlewares.CheckAuth,
 					handlers.RebootServerHandler())
-			systemGroup.GET("/manage/poweroff", 
+			systemGroup.POST("/manage/poweroff", 
 					middlewares.CheckAuth,
 					handlers.PowerOffServerHandler())
 		}
@@ -44,7 +44,7 @@ func InitializeRoutes() *gin.Engine {
 				middlewares.CheckAuth, 
 				handlers.GetRamDetailInfo())
 			componentsGroup.GET("/disks-info", 
-				middlewares.CheckAuth, 
+				// middlewares.CheckAuth, 
 				handlers.GetDiskDetailInfo())
 		}
 		
