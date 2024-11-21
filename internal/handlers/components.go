@@ -45,7 +45,7 @@ func GetRamDetailInfo() gin.HandlerFunc {
 func GetDiskDetailInfo() gin.HandlerFunc {
 	// Return Disk info
 	return func(c *gin.Context) {
-		disk, err := services.DiskDetailInfo()
+		disk, err := services.DiskUsageSummary()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": "Could not retrieve disk information",

@@ -6,9 +6,9 @@ import (
 )
 
 type DiskSummary struct {
-	TotalFreeSpace uint64 `json:"total_free_space"` 
-	TotalUsedSpace uint64 `json:"total_used_space"` 
-	TotalSpace     uint64 `json:"total_space"`      
+	TotalFreeSpace string `json:"total_free_space"`
+	TotalUsedSpace string `json:"total_used_space"` 
+	TotalSpace     string `json:"total_space"`      
 }
 
 func DiskUsageSummary() (DiskSummary, error) {
@@ -35,8 +35,8 @@ func DiskUsageSummary() (DiskSummary, error) {
 	}
 
 	return DiskSummary{
-		TotalFreeSpace: totalFree / (1024 * 1024 * 1024),
-		TotalUsedSpace: totalUsed / (1024 * 1024 * 1024),
-		TotalSpace:     totalSpace / (1024 * 1024 * 1024),
+		TotalFreeSpace: fmt.Sprintf("%d GB", totalFree/(1024*1024*1024)),
+		TotalUsedSpace: fmt.Sprintf("%d GB", totalUsed/(1024*1024*1024)),
+		TotalSpace:     fmt.Sprintf("%d GB", totalSpace/(1024*1024*1024)),
 	}, nil
 }
