@@ -44,7 +44,7 @@ func InitializeRoutes() *gin.Engine {
 				middlewares.CheckAuth, 
 				handlers.GetRamDetailInfo())
 			componentsGroup.GET("/disks-info", 
-				// middlewares.CheckAuth, 
+				middlewares.CheckAuth, 
 				handlers.GetDiskDetailInfo())
 		}
 		
