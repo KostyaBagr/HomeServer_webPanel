@@ -1,8 +1,9 @@
 // A service layer for CPU calculations
 package services
-
+// #include <time.h>
+import "C"
 import (
-	"bytes"
+	// "bytes"
 	"fmt"
 
 	"io/ioutil"
@@ -10,61 +11,65 @@ import (
 	"path/filepath"
 
 	"os"
-	"os/exec"
+	"time"
 	"strconv"
 	"strings"
+	linuxproc "github.com/c9s/goprocinfo/linux"
 )
 
 
-type Process struct {
-    pid int
-    cpu float64
+
+func calcSingleCoreUsage(curr, prev linuxproc.CPUStat) float32 {
+
+	PrevIdle := prev.Idle + prev.IOWait
+	Idle := curr.Idle + curr.IOWait
+
+	PrevNonIdle := prev.User + prev.Nice + prev.System + prev.IRQ + prev.SoftIRQ + prev.Steal
+	NonIdle := curr.User + curr.Nice + curr.System + curr.IRQ + curr.SoftIRQ + curr.Steal
+
+	PrevTotal := PrevIdle + PrevNonIdle
+	Total := Idle + NonIdle
+	totald := Total - PrevTotal
+	idled := Idle - PrevIdle
+
+	if totald == 0 {
+			return 0.0
+	}
+
+	CPU_Percentage := (float32(totald) - float32(idled)) / float32(totald) * 100.0
+
+	return CPU_Percentage
+}
+
+func getCPUStats() (linuxproc.CPUStat, error) {
+	stats, err := linuxproc.ReadStat("/proc/stat")
+	if err != nil{
+		return linuxproc.CPUStat{}, err
+	}
+	return stats.CPUStatAll, nil
+	
+}
+
+func GetCPUInfo() (float32, error){
+	prevStat, err := getCPUStats()
+	if err != nil {
+			fmt.Println("Ошибка чтения CPUStat:", err)
+			return 0.0, err
+	}
+	time.Sleep(1 * time.Second)
+	currStat, err := getCPUStats()
+	if err != nil {
+			fmt.Println("Ошибка чтения CPUStat:", err)
+			return 0.0, err
+	}
+
+	load := calcSingleCoreUsage(currStat, prevStat)
+	return load, nil
+
 }
 
 
-func getCpuLoad() (int64, error){
-	// Get cpu load
-	var total float64
-	cmd := exec.Command("ps", "aux")
-    var out bytes.Buffer
-    cmd.Stdout = &out
-    err := cmd.Run()
-    if err != nil {
-        log.Fatal(err)
-    }
-    processes := make([]*Process, 0)
-    for {
-        line, err := out.ReadString('\n')
-        if err!=nil {
-            break;
-        }
-        tokens := strings.Split(line, " ")
-        ft := make([]string, 0)
-        for _, t := range(tokens) {
-            if t!="" && t!="\t" {
-                ft = append(ft, t)
-            }
-        }
-        log.Println(len(ft), ft)
-        pid, err := strconv.Atoi(ft[1])
-        if err!=nil {
-            continue
-        }
-        cpu, err := strconv.ParseFloat(ft[2], 64)
-        if err!=nil {
-            log.Fatal(err)
-        }
-        processes = append(processes, &Process{pid, cpu})
-    }
-    for _, p := range(processes) {
-		total += p.cpu
-
-    }
-	return int64(total), nil
-}
-
-
-func getCpuTemp() (map[string]interface{}, error) {
+func GetCpuTemp() (map[string]interface{}, error) {
 	// Get and return CPU temp
 	// TODO: check temp file on linux machine
 	thermalDir := "/sys/class/thermal/"
@@ -93,6 +98,7 @@ func getCpuTemp() (map[string]interface{}, error) {
 			}
 			tempCelsius := float64(temp) / 1000.0
 			temps[path] = tempCelsius
+			fmt.Println(temps)
 		}
 
 		return nil
@@ -101,6 +107,6 @@ func getCpuTemp() (map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+	fmt.Println(temps)
 	return temps, nil
 }

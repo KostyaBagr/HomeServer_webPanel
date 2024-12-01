@@ -74,7 +74,7 @@ func Login() gin.HandlerFunc{
 
 		generateToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 			"id":  userFound.ID,
-			"exp": time.Now().Add(time.Hour * 24).Unix(),
+			"exp": time.Now().Add(time.Hour * 350).Unix(),
 		})
 
 		token, err := generateToken.SignedString([]byte(os.Getenv("SECRET")))

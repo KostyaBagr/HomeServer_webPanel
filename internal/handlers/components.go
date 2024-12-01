@@ -4,24 +4,32 @@ package handlers
 import (
 
 	"net/http"
-
+	"fmt"
 	"github.com/KostyaBagr/HomeServer_webPanel/internal/services"
 	"github.com/gin-gonic/gin"
 )
 
 func GetCpuDetailInfo() gin.HandlerFunc {
-	// Return CPU load info
+	// Return CPU load and temp info
 	return func(c *gin.Context) {
-		cpu, err := services.CpuDetailInfo()
-		if err != nil {
+
+		load, err := services.GetCPUInfo()
+		if err != nil{
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Could not retrieve CPU information",
+				"error": "Could not retrieve CPU load",
 			})
-			return
+		}
+		temp, err := services.GetCpuTemp()
+		if err != nil{
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Could not retrieve CPU temp",
+			})
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"result": cpu,
+			"temp": temp,
+			"load": fmt.Sprintf("%.2f%%", load),
 		})
+
 	}
 }
 
