@@ -3,18 +3,15 @@ package services
 // #include <time.h>
 import "C"
 import (
-	// "bytes"
 	"fmt"
-
-	"io/ioutil"
-	"log"
-	"path/filepath"
-
-	"os"
 	"time"
+	"os"
+
+	"bufio"
 	"strconv"
-	"strings"
+
 	linuxproc "github.com/c9s/goprocinfo/linux"
+	"github.com/KostyaBagr/HomeServer_webPanel/pkg/settings"
 )
 
 
@@ -69,44 +66,27 @@ func GetCPUInfo() (float32, error){
 }
 
 
-func GetCpuTemp() (map[string]interface{}, error) {
+func GetCPUTemp() (int, error) {
 	// Get and return CPU temp
 	// TODO: check temp file on linux machine
-	thermalDir := "/sys/class/thermal/"
-	temps := make(map[string]interface{})
+	path := settings.AppSetting.TempFilePath
 
-	err := filepath.Walk(thermalDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			log.Fatalf("Error accessing path %q: %v\n", path, err)
-			return err
-		}
+	file, err := os.Open(path)
+    if err != nil {
+        return 0, err
+    }
+    defer func() {
+        if err = file.Close(); err != nil {
+            return
+        }
+    }()
 
-		if strings.HasSuffix(path, "temp") {
-			fmt.Printf("Reading temperature from %s\n", path)
-			data, err := ioutil.ReadFile(path)
-			if err != nil {
-				log.Fatalf("Could not read file %s", path)
-				return err
-			}
+    scanner := bufio.NewScanner(file)
+	var res int
+    for scanner.Scan() {
+        output, _ := strconv.Atoi(scanner.Text())
+		res = output / 1000
 
-			tempStr := strings.TrimSpace(string(data))
-			fmt.Printf("Raw temperature data: %s\n", tempStr)
-			temp, err := strconv.Atoi(tempStr)
-			if err != nil {
-				log.Fatalf("Error converting temperature data %q: %v\n", tempStr, err)
-				return err
-			}
-			tempCelsius := float64(temp) / 1000.0
-			temps[path] = tempCelsius
-			fmt.Println(temps)
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println(temps)
-	return temps, nil
+    }
+	return res, nil
 }

@@ -29,6 +29,8 @@ type Panel struct {
 	LogSaveName string
 	LogFileExt  string
 	TimeFormat  string
+
+	TempFilePath string   // A path for cpu temperature info
 }
 
 var AppSetting = &Panel{}
@@ -88,6 +90,7 @@ func Setup() {
 	ServerSetting.ReadTimeout = ServerSetting.ReadTimeout * time.Second
 	ServerSetting.WriteTimeout = ServerSetting.WriteTimeout * time.Second
 	RedisSetting.IdleTimeout = RedisSetting.IdleTimeout * time.Second
+	AppSetting.TempFilePath  = "/sys/class/thermal/thermal_zone0/temp"
 }
 
 // mapTo map section

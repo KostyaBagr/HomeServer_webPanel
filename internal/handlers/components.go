@@ -18,12 +18,14 @@ func GetCpuDetailInfo() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": "Could not retrieve CPU load",
 			})
+			return 
 		}
-		temp, err := services.GetCpuTemp()
+		temp, err := services.GetCPUTemp()
 		if err != nil{
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": "Could not retrieve CPU temp",
 			})
+			return 
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"temp": temp,
