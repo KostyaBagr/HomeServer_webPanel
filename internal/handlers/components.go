@@ -28,8 +28,10 @@ func GetCpuDetailInfo() gin.HandlerFunc {
 			return 
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"temp": temp,
-			"load": fmt.Sprintf("%.2f%%", load),
+			"result": gin.H{
+				"temp": temp,
+				"load": fmt.Sprintf("%.2f%%", load),
+			},
 		})
 
 	}

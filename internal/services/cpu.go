@@ -68,7 +68,6 @@ func GetCPUInfo() (float32, error){
 
 func GetCPUTemp() (int, error) {
 	// Get and return CPU temp
-	// TODO: check temp file on linux machine
 	path := settings.AppSetting.TempFilePath
 
 	file, err := os.Open(path)
